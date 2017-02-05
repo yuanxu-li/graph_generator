@@ -1,4 +1,4 @@
-from collections import defaultdict
+from matplotlib import pyplot
 import random
 import sys
 import pdb
@@ -9,9 +9,9 @@ def generate_graph(filename, node_size, avg_degree=None):
     # concept: https://en.wikipedia.org/wiki/Barab%C3%A1si%E2%80%93Albert_model
     # method: https://github.com/ladamalina/coursera-sna/blob/master/Week%202.%20Random%20Graph%20Models/Lecture%202C%20Advanced.pdf
     """
-    # initialize an empty network
+    # initialize an empty graph
     # each index represents a node and its neighbors
-    network = [[] for _ in range(node_size+1)]
+    graph = [[] for _ in range(node_size+1)]
     degrees = 0
     # endpoints
     endpoints = []
@@ -25,28 +25,35 @@ def generate_graph(filename, node_size, avg_degree=None):
         for j in range(i+1, seed_size+1):
             if i != j:
                 degrees += 1
-                network[i].append(j)
-                network[j].append(i)
+                graph[i].append(j)
+                graph[j].append(i)
                 endpoints.append(i)
                 endpoints.append(j)
-    # print network, degrees
+    # print graph, degrees
     # generate the entire graph
     for new_comer in range(seed_size+1, node_size+1):
         old_friends = select_elements(endpoints, avg_degree)
         # pdb.set_trace()
         for old_friend in old_friends:
             degrees += 1
-            network[new_comer].append(old_friend)
-            network[old_friend].append(new_comer)
+            graph[new_comer].append(old_friend)
+            graph[old_friend].append(new_comer)
             endpoints.append(new_comer)
             endpoints.append(old_friend)
-    # print network, degrees
+    # print graph, degrees
+
+    pyplot.hist(endpoints, bins=100)
+    pyplot.title("Graph Degree Histogram")
+    pyplot.xlabel("Degree")
+    pyplot.ylabel("Number")
+
+    pyplot.show()
 
     with open(filename, "w") as file:
-        for i in range(1, len(network)):
-            for j in range(len(network[i])):
-                if i < network[i][j]:
-                    file.write(str(i) + "," + str(network[i][j]) + "\n")
+        for i in range(1, len(graph)):
+            for j in range(len(graph[i])):
+                if i < graph[i][j]:
+                    file.write(str(i) + "," + str(graph[i][j]) + "\n")
 
 def select_elements(endpoints, avg_degree):
     """
